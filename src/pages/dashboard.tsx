@@ -15,6 +15,7 @@ const Dashboard: NextPage = () => {
   const [requests, setRequests] = useState<(Types.IRequestDataWithEvents | undefined)[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<Types.IRequestDataWithEvents | undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('All');
 
   const fetchRequests = async () => {
     const requestClient = new RequestNetwork({
@@ -100,15 +101,15 @@ const Dashboard: NextPage = () => {
     return currencies.get(network.concat("_", value))?.decimals;
   };
 
-  const renderTable = (requests: (Types.IRequestDataWithEvents | undefined)[]) => (
+  const renderTable = (requests: (Types.IRequestDataWithEvents | undefined)[], excludeColumn?: string) => (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr className="bg-gray-100">
             <th className="py-2 px-4 border-b border-gray-200 text-left">CREATED</th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">INVOICE NO</th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">PAYEE</th>
-            <th className="py-2 px-4 border-b border-gray-200 text-left">PAYER</th>
+            {excludeColumn !== 'PAYEE' && <th className="py-2 px-4 border-b border-gray-200 text-left">PAYEE</th>}
+            {excludeColumn !== 'PAYER' && <th className="py-2 px-4 border-b border-gray-200 text-left">PAYER</th>}
             <th className="py-2 px-4 border-b border-gray-200 text-left">EXPECTED AMOUNT</th>
             <th className="py-2 px-4 border-b border-gray-200 text-left">STATUS</th>
           </tr>
@@ -133,14 +134,18 @@ const Dashboard: NextPage = () => {
                   {truncateString(request?.requestId ?? '', 10)}
                   <FaCopy className="ml-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(request?.requestId ?? '') }} />
                 </td>
-                <td className="py-2 px-4 border-b border-gray-200">
-                  {truncateString(request?.payee?.value ?? '', 10)}
-                  <FaCopy className="ml-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(request?.payee?.value ?? '') }} />
-                </td>
-                <td className="py-2 px-4 border-b border-gray-200">
-                  {truncateString(request?.payer?.value ?? '', 10)}
-                  <FaCopy className="ml-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(request?.payer?.value ?? '') }} />
-                </td>
+                {excludeColumn !== 'PAYEE' && (
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    {truncateString(request?.payee?.value ?? '', 10)}
+                    <FaCopy className="ml-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(request?.payee?.value ?? '') }} />
+                  </td>
+                )}
+                {excludeColumn !== 'PAYER' && (
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    {truncateString(request?.payer?.value ?? '', 10)}
+                    <FaCopy className="ml-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(request?.payer?.value ?? '') }} />
+                  </td>
+                )}
                 <td className="py-2 px-4 border-b border-gray-200">
                   {formatUnits(
                     BigInt(request?.expectedAmount as string),
@@ -168,10 +173,13 @@ const Dashboard: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto p-4">
       <h2 className="text-3xl font-bold text-gray-700 mb-4">Dashboard</h2>
-      <Tabs labels={['All', 'Pay', 'Get Paid']}>
+      <Tabs
+        labels={['All', 'Pay', 'Get Paid']}
+        onTabClick={(tab) => setActiveTab(tab)}
+      >
         <div>{renderTable(requests)}</div>
-        <div>{renderTable(payRequests)}</div>
-        <div>{renderTable(getPaidRequests)}</div>
+        <div>{renderTable(payRequests, 'PAYER')}</div>
+        <div>{renderTable(getPaidRequests, 'PAYEE')}</div>
       </Tabs>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         {selectedRequest && (
