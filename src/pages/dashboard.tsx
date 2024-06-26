@@ -2,7 +2,7 @@ import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Tabs from '../components/Tabs';
 import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { FaCheckCircle, FaTimesCircle, FaHourglassStart, FaHourglassHalf } from 'react-icons/fa'; // Import icons
+import { FaCheckCircle, FaTimesCircle, FaHourglassStart, FaHourglassHalf } from 'react-icons/fa';
 
 const userAddress = "0xb9558F27C1484d7CD4E75f61D3174b6db39E23Cd";
 
