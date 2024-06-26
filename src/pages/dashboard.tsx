@@ -2,8 +2,9 @@ import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Tabs from '../components/Tabs';
 import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
+import { FaCheckCircle, FaTimesCircle, FaHourglassStart, FaHourglassHalf } from 'react-icons/fa'; // Import icons
 
-const userAddress = "0x519145B771a6e450461af89980e5C17Ff6Fd8A92";
+const userAddress = "0xb9558F27C1484d7CD4E75f61D3174b6db39E23Cd";
 
 const Dashboard: NextPage = () => {
   const [requests, setRequests] = useState<(Types.IRequestDataWithEvents | undefined)[]>([]);
@@ -34,7 +35,30 @@ const Dashboard: NextPage = () => {
   useEffect(() => {
     fetchRequests();
   }, []);
-console.log(requests)
+
+  interface StatusResult {
+    status: string;
+    icon: JSX.Element | null;
+  }
+
+  const getStatus = (state: string, expectedAmount: BigInt, balance: BigInt): StatusResult => {
+    if (balance >= expectedAmount) {
+      return { status: "Paid", icon: <FaCheckCircle className="text-green-500" /> };
+    }
+    switch (state) {
+      case Types.RequestLogic.STATE.ACCEPTED:
+        return { status: "Accepted", icon: <FaCheckCircle className="text-blue-500" /> };
+      case Types.RequestLogic.STATE.CANCELED:
+        return { status: "Canceled", icon: <FaTimesCircle className="text-red-500" /> };
+      case Types.RequestLogic.STATE.CREATED:
+        return { status: "Created", icon: <FaHourglassStart className="text-yellow-500" /> };
+      case Types.RequestLogic.STATE.PENDING:
+        return { status: "Pending", icon: <FaHourglassHalf className="text-yellow-500" /> };
+      default:
+        return { status: "Unknown", icon: null };
+    }
+  };
+
   const renderTable = (requests: (Types.IRequestDataWithEvents | undefined)[]) => (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200">
@@ -49,16 +73,26 @@ console.log(requests)
           </tr>
         </thead>
         <tbody>
-          {requests.map((request, index) => (
-            <tr key={index} className="hover:bg-gray-50">
-              <td className="py-2 px-4 border-b border-gray-200">{new Date(request?.timestamp * 1000).toLocaleDateString()}</td>
-              <td className="py-2 px-4 border-b border-gray-200">{request?.requestId}</td>
-              <td className="py-2 px-4 border-b border-gray-200">{request?.payee?.value}</td>
-              <td className="py-2 px-4 border-b border-gray-200">{request?.payer?.value}</td>
-              <td className="py-2 px-4 border-b border-gray-200">{request?.expectedAmount}</td>
-              <td className="py-2 px-4 border-b border-gray-200">{request?.state}</td>
-            </tr>
-          ))}
+          {requests.map((request, index) => {
+            const { status, icon } = getStatus(
+              request?.state as string,
+              BigInt(request?.expectedAmount as string),
+              BigInt(request?.balance?.balance || 0)
+            );
+            return (
+              <tr key={index} className="hover:bg-gray-50">
+                <td className="py-2 px-4 border-b border-gray-200">{new Date(request?.timestamp * 1000).toLocaleDateString()}</td>
+                <td className="py-2 px-4 border-b border-gray-200">{request?.requestId}</td>
+                <td className="py-2 px-4 border-b border-gray-200">{request?.payee?.value}</td>
+                <td className="py-2 px-4 border-b border-gray-200">{request?.payer?.value}</td>
+                <td className="py-2 px-4 border-b border-gray-200">{request?.expectedAmount}</td>
+                <td className="py-2 px-4 border-b border-gray-200 flex items-center">
+                  {icon}
+                  <span className="ml-2">{status}</span>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
