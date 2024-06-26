@@ -1,5 +1,10 @@
 import { NextPage } from 'next';
 import Tabs from '../components/Tabs';
+import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
+import { useEffect, useState } from 'react'
+
+// TODO
+const userAddress = "0x519145B771a6e450461af89980e5C17Ff6Fd8A92";
 
 const data = [
   {
@@ -42,6 +47,36 @@ const renderTable = (requests: typeof data) => (
 );
 
 const Dashboard: NextPage = () => {
+
+  const [requests, setRequests] = useState<(Types.IRequestDataWithEvents | undefined)[]>([]);
+
+  const fetchRequests = async () => {
+    const requestClient = new RequestNetwork({
+      nodeConnectionConfig: {
+        baseURL: "https://gnosis.gateway.request.network",
+      },
+    });
+
+    try {
+      const fetchedRequests = await requestClient.fromIdentity({
+        type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
+        value: userAddress,
+      });
+
+      const requestData = await Promise.all(
+        fetchedRequests.map(async (request) => await request.getData())
+      );
+
+      setRequests(requestData);
+    } catch (error) {
+      console.error("Failed to fetch requests:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+  console.log(requests)
   return (
     <div className="max-w-6xl mx-auto p-4">
       <h2 className="text-3xl font-bold text-gray-700 mb-4">Dashboard</h2>
