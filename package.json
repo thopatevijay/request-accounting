@@ -9,11 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "ethers": "^5.7.2",
-    "next": "14.2.4",
-    "react": "^18",
-    "react-dom": "^18",
-    "react-icons": "^5.2.1",
+    "@requestnetwork/request-client.js": "^0.45.0",
     "@web3-onboard/coinbase": "^2.2.7",
     "@web3-onboard/core": "^2.21.6",
     "@web3-onboard/gnosis": "^2.2.2",
@@ -22,7 +18,13 @@
     "@web3-onboard/react": "^2.8.17",
     "@web3-onboard/trezor": "^2.4.4",
     "@web3-onboard/trust": "^2.0.4",
-    "@web3-onboard/walletconnect": "^2.5.5"
+    "@web3-onboard/walletconnect": "^2.5.5",
+    "ethers": "^5.7.2",
+    "jspdf": "^2.5.1",
+    "next": "14.2.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^5.2.1"
   },
   "devDependencies": {
     "@types/node": "^20",
