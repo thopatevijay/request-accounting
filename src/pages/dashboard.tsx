@@ -183,19 +183,81 @@ const Dashboard: NextPage = () => {
       </Tabs>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         {selectedRequest && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Invoice Details</h2>
-            <p><strong>Invoice ID:</strong> {selectedRequest?.requestId}</p>
-            <p><strong>Payee:</strong> {selectedRequest?.payee?.value}</p>
-            <p><strong>Payer:</strong> {selectedRequest?.payer?.value}</p>
-            <p><strong>Amount:</strong>
-              {formatUnits(
-                BigInt(selectedRequest?.expectedAmount as string),
-                getDecimals(
-                  selectedRequest.currencyInfo.network!,
-                  selectedRequest.currencyInfo.value,
-                ) ?? 18,
-              )}</p>
+          <div className="p-4 space-y-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Invoice #{selectedRequest.requestId.slice(0, 8)}</h2>
+              <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full">
+                {getStatus(selectedRequest.state, BigInt(selectedRequest.expectedAmount), BigInt(selectedRequest.balance?.balance ?? 0)).status}
+              </span>
+            </div>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <p><strong>Issued on:</strong> {new Date(selectedRequest.timestamp * 1000).toLocaleDateString()}</p>
+                <p><strong>Due by:</strong> {new Date(selectedRequest.timestamp * 1000 + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
+              </div>
+            </div>
+            <div className="border-t border-gray-200 py-4">
+              <div className="flex justify-between">
+                <div className="w-1/2 pr-4">
+                  <h3 className="text-lg font-bold mb-2">From:</h3>
+                  <p className="mb-1 flex items-center"><strong>Address:</strong> {truncateString(selectedRequest?.payee?.value ?? '', 20)}
+                    <FaCopy className="ml-2 cursor-pointer" onClick={() => copyToClipboard(selectedRequest?.payee?.value ?? '')} />
+                  </p>
+                  <p className="mb-1"><strong>Email:</strong> abc@gmail.com</p>
+                  <p className="mb-1"><strong>Name:</strong> Vijay</p>
+                  <p className="mb-1"><strong>Company:</strong> ABC</p>
+                  <p className="mb-1"><strong>City:</strong> IND</p>
+                  <p className="mb-1"><strong>Region:</strong> P</p>
+                  <p className="mb-1"><strong>Postal Code:</strong> 412103</p>
+                </div>
+                <div className="w-1/2 pl-4">
+                  <h3 className="text-lg font-bold mb-2">Billed to:</h3>
+                  <p className="mb-1 flex items-center"><strong>Address:</strong> {truncateString(selectedRequest?.payer?.value ?? '', 20)}
+                    <FaCopy className="ml-2 cursor-pointer" onClick={() => copyToClipboard(selectedRequest?.payer?.value ?? '')} />
+                  </p>
+                  <p className="mb-1"><strong>Email:</strong> xyz@gmail.com</p>
+                  <p className="mb-1"><strong>Name:</strong> XYZ</p>
+                  <p className="mb-1"><strong>Company:</strong> XYZ</p>
+                  <p className="mb-1"><strong>City:</strong> IND</p>
+                  <p className="mb-1"><strong>Region:</strong> P</p>
+                  <p className="mb-1"><strong>Postal Code:</strong> 412105</p>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gray-200 py-4">
+              <h3 className="text-lg font-bold mb-2">Payment Details:</h3>
+              <p className="mb-1"><strong>Payment Chain:</strong> Sepolia</p>
+              <p className="mb-1"><strong>Invoice Currency:</strong> USDC</p>
+            </div>
+            <div className="border-t border-gray-200 py-4">
+              <h3 className="text-lg font-bold mb-2">Item Details:</h3>
+              <table className="min-w-full bg-white border border-gray-200">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="py-2 px-4 border-b border-gray-200 text-left">DESCRIPTION</th>
+                    <th className="py-2 px-4 border-b border-gray-200 text-left">QTY</th>
+                    <th className="py-2 px-4 border-b border-gray-200 text-left">UNIT PRICE</th>
+                    <th className="py-2 px-4 border-b border-gray-200 text-left">DISCOUNT</th>
+                    <th className="py-2 px-4 border-b border-gray-200 text-left">TAX</th>
+                    <th className="py-2 px-4 border-b border-gray-200 text-left">AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-2 px-4 border-b border-gray-200">Development</td>
+                    <td className="py-2 px-4 border-b border-gray-200">1</td>
+                    <td className="py-2 px-4 border-b border-gray-200">0.01</td>
+                    <td className="py-2 px-4 border-b border-gray-200">0</td>
+                    <td className="py-2 px-4 border-b border-gray-200">0</td>
+                    <td className="py-2 px-4 border-b border-gray-200">0.01</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="border-t border-gray-200 py-4">
+              <h3 className="text-lg font-bold mb-2">Memo:</h3>
+              <p className="mb-1">Testing invoice</p>
+            </div>
             <button
               className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
               onClick={downloadPDF}
