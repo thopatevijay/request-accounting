@@ -2,7 +2,7 @@ import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Tabs from '../components/Tabs';
 import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { FaCheckCircle, FaTimesCircle, FaHourglassStart, FaHourglassHalf } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaHourglassStart, FaHourglassHalf, FaCopy } from 'react-icons/fa';
 
 const userAddress = "0xb9558F27C1484d7CD4E75f61D3174b6db39E23Cd";
 
@@ -58,6 +58,14 @@ const Dashboard: NextPage = () => {
         return { status: "Unknown", icon: null };
     }
   };
+  const truncateString = (str: string, length: number): string => {
+    return str.length > length ? `${str.slice(0, length / 2)}...${str.slice(-length / 2)}` : str;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard');
+  };
 
   const renderTable = (requests: (Types.IRequestDataWithEvents | undefined)[]) => (
     <div className="overflow-x-auto">
@@ -82,9 +90,18 @@ const Dashboard: NextPage = () => {
             return (
               <tr key={index} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b border-gray-200">{new Date(request?.timestamp * 1000).toLocaleDateString()}</td>
-                <td className="py-2 px-4 border-b border-gray-200">{request?.requestId}</td>
-                <td className="py-2 px-4 border-b border-gray-200">{request?.payee?.value}</td>
-                <td className="py-2 px-4 border-b border-gray-200">{request?.payer?.value}</td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  {truncateString(request?.requestId || '', 10)}
+                  <FaCopy className="ml-2 cursor-pointer" onClick={() => copyToClipboard(request?.requestId || '')} />
+                </td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  {truncateString(request?.payee?.value || '', 10)}
+                  <FaCopy className="ml-2 cursor-pointer" onClick={() => copyToClipboard(request?.payee?.value || '')} />
+                </td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  {truncateString(request?.payer?.value || '', 10)}
+                  <FaCopy className="ml-2 cursor-pointer" onClick={() => copyToClipboard(request?.payer?.value || '')} />
+                </td>
                 <td className="py-2 px-4 border-b border-gray-200">{request?.expectedAmount}</td>
                 <td className="py-2 px-4 border-b border-gray-200 flex items-center">
                   {icon}
