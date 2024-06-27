@@ -8,9 +8,12 @@ type UseRequestNetworkResult = {
     wallets: WalletState | undefined;
     getRequestFromId: (requestId: string | undefined) => Promise<IRequestDataWithEvents> | undefined;
     fetchAllRequests: () => Promise<IRequestDataWithEvents[] | undefined>;
+    isLoading: boolean;
 };
 
 export function useRequestNetwork(): UseRequestNetworkResult {
+    const [isLoading, setIsLoading] = useState(true); // Added loading state
+
     const [wallets, setWallets] = useState<WalletState>();
     const [{ wallet }] = useConnectWallet();
 
@@ -33,6 +36,8 @@ export function useRequestNetwork(): UseRequestNetworkResult {
 
     // Fetch all requests
     const fetchAllRequests = useCallback(async () => {
+        setIsLoading(true);
+
         try {
             if (!wallets?.accounts[0].address) {
                 throw new Error("No wallet address found");
@@ -49,6 +54,8 @@ export function useRequestNetwork(): UseRequestNetworkResult {
             return requestData;
         } catch (error) {
             console.error("Failed to fetch requests:", error);
+        } finally {
+            setIsLoading(false);
         }
     }, [requestClient, wallets]);
 
@@ -62,5 +69,6 @@ export function useRequestNetwork(): UseRequestNetworkResult {
         wallets,
         getRequestFromId,
         fetchAllRequests,
+        isLoading,
     };
 }
