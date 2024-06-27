@@ -30,13 +30,14 @@ const Dashboard: NextPage = () => {
     setIsModalOpen(true);
   };
 
-  const walletAddress = wallets?.accounts[0].address;
-  const payRequests = allRequests.filter((request) => {
-    return request?.payer?.value === walletAddress;
-  });
+  const walletAddress = wallets?.accounts[0].address.toLowerCase();
 
+  const payRequests = allRequests.filter((request) => {
+    return request?.payer?.value.toLowerCase() === walletAddress;
+  });
+  
   const getPaidRequests = allRequests.filter((request) => {
-    return request?.payee?.value === walletAddress;
+    return request?.payee?.value.toLowerCase() === walletAddress;
   });
 
   return (
