@@ -1,5 +1,6 @@
-import { copyToClipboard, getDecimals, truncateString } from '@/utils';
+import { copyToClipboard, getDecimals, getSymbol, truncateString } from '@/utils';
 import { Types } from '@requestnetwork/request-client.js';
+import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
 import React from 'react';
 import { FaCheckCircle, FaTimesCircle, FaHourglassStart, FaHourglassHalf, FaCopy } from 'react-icons/fa';
 import { formatUnits } from "viem";
@@ -7,7 +8,7 @@ import { formatUnits } from "viem";
 interface RequestTableProps {
     requests: (Types.IRequestDataWithEvents | undefined)[];
     excludeColumn?: string;
-    handleRowClick: (id: string | undefined) => void;
+    handleRowClick: (request: IRequestDataWithEvents | undefined) => Promise<void>
 }
 interface StatusResult {
     status: string;
@@ -57,7 +58,7 @@ export const RequestsTable = ({ requests, excludeColumn, handleRowClick }: Reque
                             <tr
                                 key={index}
                                 className="hover:bg-gray-100 cursor-pointer"
-                                onClick={() => handleRowClick(request?.requestId)}
+                                onClick={() => handleRowClick(request)}
                             >
                                 <td className="py-2 px-4 border-b border-gray-200">
                                     {request?.timestamp ? new Date(request.timestamp * 1000).toLocaleDateString() : 'N/A'}
@@ -85,7 +86,13 @@ export const RequestsTable = ({ requests, excludeColumn, handleRowClick }: Reque
                                             request!.currencyInfo.network!,
                                             request!.currencyInfo.value,
                                         ) ?? 18,
-                                    )}
+                                    )} {""}
+                                    <strong>
+                                        {getSymbol(
+                                            request!.currencyInfo.network!,
+                                            request!.currencyInfo.value,
+                                        )}
+                                    </strong>
                                 </td>
                                 <td className="py-2 px-4 border-b border-gray-200 flex items-center">
                                     {icon}

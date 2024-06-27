@@ -12,7 +12,7 @@ const Dashboard: NextPage = () => {
   const [selectedRequest, setSelectedRequest] = useState<Types.IRequestDataWithEvents | undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('All');
-  const { wallets, getRequestFromId, fetchAllRequests } = useRequestNetwork();
+  const { wallets, fetchAllRequests } = useRequestNetwork();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -24,8 +24,7 @@ const Dashboard: NextPage = () => {
     }
   }, [fetchAllRequests, wallets?.accounts]);
 
-  const handleRowClick = async (requestId: string | undefined) => {
-    const request = await getRequestFromId(requestId);
+  const handleRowClick = async (request: IRequestDataWithEvents | undefined) => {
     setSelectedRequest(request);
     setIsModalOpen(true);
   };
