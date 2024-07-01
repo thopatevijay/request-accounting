@@ -1,52 +1,83 @@
 import React from 'react';
+import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
+import { formatUnits } from 'viem';
+import { getDecimals } from '@/utils';
 
-const transactions = [
-  {
-    id: 1,
-    payee: '0x519145B771a6e450461af89980e5C17Ff6Fd8A92',
-    payer: '0x7eB023BFbAeE228de6DC5B92D0BeEB1eDb1Fd567',
-    amount: '$500',
-    status: 'Paid',
-    date: '2024-07-01',
-  },
-  {
-    id: 2,
-    payee: '0x519145B771a6e450461af89980e5C17Ff6Fd8A92',
-    payer: '0x7eB023BFbAeE228de6DC5B92D0BeEB1eDb1Fd567',
-    amount: '$300',
-    status: 'Pending',
-    date: '2024-06-30',
-  },
-];
+interface TransactionListProps {
+  transactions: IRequestDataWithEvents[];
+  isLoading: boolean;
+  filter: string;
+  handleRowClick: (transaction: IRequestDataWithEvents | undefined) => void;
+}
 
-const TransactionList = () => {
+const TransactionList: React.FC<TransactionListProps> = ({ transactions, isLoading, filter, handleRowClick }) => {
+  const getStatus = (state: string, expectedAmount: BigInt, balance: BigInt) => {
+    if (balance >= expectedAmount) {
+      return { status: 'Paid', icon: <span className="text-green-500">✔</span> };
+    }
+    switch (state) {
+      case 'accepted':
+        return { status: 'Accepted', icon: <span className="text-blue-500">✔</span> };
+      case 'canceled':
+        return { status: 'Canceled', icon: <span className="text-red-500">✖</span> };
+      case 'created':
+        return { status: 'Created', icon: <span className="text-yellow-500">⌛</span> };
+      case 'pending':
+        return { status: 'Pending', icon: <span className="text-yellow-500">⌛</span> };
+      default:
+        return { status: 'Unknown', icon: null };
+    }
+  };
+
+  const filteredTransactions = transactions.filter((transaction) =>
+    transaction.payee?.value.toLowerCase().includes(filter.toLowerCase()) ||
+    transaction.payer?.value.toLowerCase().includes(filter.toLowerCase())
+  );
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+    <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Transactions</h2>
-      <table className="w-full text-left">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 border">Payee</th>
-            <th className="px-4 py-2 border">Payer</th>
-            <th className="px-4 py-2 border">Amount</th>
-            <th className="px-4 py-2 border">Status</th>
-            <th className="px-4 py-2 border">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((transaction) => (
-            <tr key={transaction.id}>
-              <td className="px-4 py-2 border">{transaction.payee}</td>
-              <td className="px-4 py-2 border">{transaction.payer}</td>
-              <td className="px-4 py-2 border">{transaction.amount}</td>
-              <td className={`px-4 py-2 border ${transaction.status === 'Paid' ? 'text-green-500' : 'text-yellow-500'}`}>
-                {transaction.status}
-              </td>
-              <td className="px-4 py-2 border">{transaction.date}</td>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <table className="w-full text-left">
+          <thead>
+            <tr>
+              <th className="px-4 py-2 border">Payee</th>
+              <th className="px-4 py-2 border">Payer</th>
+              <th className="px-4 py-2 border">Amount</th>
+              <th className="px-4 py-2 border">Status</th>
+              <th className="px-4 py-2 border">Date</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredTransactions.map((transaction) => {
+              const { status, icon } = getStatus(
+                transaction.state as string,
+                BigInt(transaction.expectedAmount as string),
+                BigInt(transaction.balance?.balance ?? 0)
+              );
+              return (
+                <tr key={transaction.requestId} onClick={() => handleRowClick(transaction)}>
+                  <td className="px-4 py-2 border">{transaction.payee?.value}</td>
+                  <td className="px-4 py-2 border">{transaction.payer?.value}</td>
+                  <td className="px-4 py-2 border">
+                    {formatUnits(
+                      BigInt(transaction.expectedAmount),
+                      getDecimals(transaction.currencyInfo.network, transaction.currencyInfo.value)
+                    )}
+                  </td>
+                  <td className="px-4 py-2 border flex items-center">
+                    {icon}
+                    <span className="ml-2">{status}</span>
+                  </td>
+                  <td className="px-4 py-2 border">{new Date(transaction.timestamp * 1000).toLocaleDateString()}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

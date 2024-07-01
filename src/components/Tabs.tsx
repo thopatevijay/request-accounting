@@ -1,37 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface TabsProps {
-    children: React.ReactNode;
-    labels: string[];
-    onTabClick?: (label: string) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-const Tabs = ({ children, labels, onTabClick }: TabsProps): JSX.Element => {
-    const [activeTab, setActiveTab] = useState(0);
+const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
+  const tabs = ['All', 'Paid', 'Get Paid'];
 
-    const handleTabClick = (index: number, label: string) => {
-        setActiveTab(index);
-        if (onTabClick) {
-            onTabClick(label);
-        }
-    };
-
-    return (
-        <div>
-            <div className="flex space-x-4 mb-4 border-b-2 border-gray-200">
-                {labels.map((label, index) => (
-                    <button
-                        key={index}
-                        className={`py-2 px-4 ${activeTab === index ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'} focus:outline-none`}
-                        onClick={() => handleTabClick(index, label)}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div>{React.Children.toArray(children)[activeTab]}</div>
-        </div>
-    );
+  return (
+    <div className="flex border-b mb-4">
+      {tabs.map((tab) => (
+        <button
+          key={tab}
+          className={`py-2 px-4 ${
+            activeTab === tab ? 'border-b-2 border-blue-500 text-blue-500' : ''
+          }`}
+          onClick={() => setActiveTab(tab)}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+  );
 };
 
 export default Tabs;
