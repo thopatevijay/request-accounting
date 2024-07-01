@@ -1,22 +1,104 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRequestNetwork } from '../hooks/useRequestNetwork';
+import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
+import { Line } from 'react-chartjs-2';
+import { Chart, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
+import { formatUnits } from 'viem';
+import { getDecimals } from '@/utils';
+
+Chart.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
 const Reports = () => {
+  const { fetchAllRequests, isLoading } = useRequestNetwork();
+  const [transactions, setTransactions] = useState<IRequestDataWithEvents[]>([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<number[]>(new Array(12).fill(0));
+  const [outstandingPayments, setOutstandingPayments] = useState<number[]>(new Array(12).fill(0));
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const requests = await fetchAllRequests();
+      if (requests) {
+        setTransactions(requests);
+        calculateReports(requests);
+      }
+    };
+
+    fetchData();
+  }, [fetchAllRequests]);
+
+  const calculateReports = (requests: IRequestDataWithEvents[]) => {
+    const revenue = new Array(12).fill(0);
+    const outstanding = new Array(12).fill(0);
+
+    requests.forEach((request) => {
+      const date = new Date(request.timestamp * 1000);
+      const month = date.getMonth();
+      const amount = formatUnits(
+        BigInt(request?.balance?.balance ?? 0),
+        getDecimals(request.currencyInfo.network!, request.currencyInfo.value) ?? 18
+      );
+      const expectedAmount = formatUnits(
+        BigInt(request?.expectedAmount),
+        getDecimals(request.currencyInfo.network!, request.currencyInfo.value) ?? 18
+      );
+
+      revenue[month] += parseFloat(amount);
+      outstanding[month] += parseFloat(expectedAmount) - parseFloat(amount);
+    });
+
+    setMonthlyRevenue(revenue);
+    setOutstandingPayments(outstanding);
+  };
+
+  const monthlyRevenueData = {
+    labels: [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ],
+    datasets: [
+      {
+        label: 'Monthly Revenue',
+        data: monthlyRevenue,
+        fill: false,
+        borderColor: 'rgba(75,192,192,1)',
+        tension: 0.1
+      }
+    ]
+  };
+
+  const outstandingPaymentsData = {
+    labels: [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ],
+    datasets: [
+      {
+        label: 'Outstanding Payments',
+        data: outstandingPayments,
+        fill: false,
+        borderColor: 'rgba(255,99,132,1)',
+        tension: 0.1
+      }
+    ]
+  };
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+    <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Reports and Analytics</h2>
-      {/* Add charts and graphs for financial reports and analytics here */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <p className="text-lg">Monthly Revenue</p>
-          {/* Placeholder for line chart */}
-          <div className="h-32 bg-gray-200 rounded mt-2"></div>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Monthly Revenue</h3>
+            <Line data={monthlyRevenueData} />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Outstanding Payments</h3>
+            <Line data={outstandingPaymentsData} />
+          </div>
         </div>
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <p className="text-lg">Outstanding Payments</p>
-          {/* Placeholder for bar chart */}
-          <div className="h-32 bg-gray-200 rounded mt-2"></div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

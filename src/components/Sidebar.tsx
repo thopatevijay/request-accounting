@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { FaTachometerAlt, FaExchangeAlt, FaFileInvoiceDollar, FaChartBar, FaBell, FaPlug } from 'react-icons/fa';
+import { FaTachometerAlt, FaExchangeAlt, FaFileInvoiceDollar, FaChartBar, FaBell, FaPlug, FaFileAlt } from 'react-icons/fa';
 import { useEffect, useState } from 'react'
 import { useConnectWallet } from '@web3-onboard/react';
 import { ethers } from 'ethers';
@@ -44,6 +44,7 @@ const Sidebar = () => {
     { name: 'Dashboard', path: '/', icon: <FaTachometerAlt /> },
     { name: 'Transactions', path: '/transactions', icon: <FaExchangeAlt /> },
     { name: 'Invoices', path: '/invoices', icon: <FaFileInvoiceDollar /> },
+    { name: 'Statements', path: '/statements', icon: <FaFileAlt /> },
     { name: 'Reports', path: '/reports', icon: <FaChartBar /> },
     { name: 'Notifications', path: '/notifications', icon: <FaBell /> },
     { name: 'Integration', path: '/integration', icon: <FaPlug /> },
