@@ -14,9 +14,9 @@ const wen3Onboard = init({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <Web3OnboardProvider web3Onboard={wen3Onboard}>
-      {/* <Layout> */}
+      <Layout>
         <Component {...pageProps} />
-      {/* </Layout> */}
+      </Layout>
     </Web3OnboardProvider>
   );
 }

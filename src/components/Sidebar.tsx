@@ -2,9 +2,44 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FaTachometerAlt, FaExchangeAlt, FaFileInvoiceDollar, FaChartBar, FaBell, FaPlug } from 'react-icons/fa';
+import { useEffect, useState } from 'react'
+import { useConnectWallet } from '@web3-onboard/react';
+import { ethers } from 'ethers';
+
+interface Account {
+  address: string,
+}
 
 const Sidebar = () => {
   const router = useRouter();
+
+  const [{ wallet, connecting }, connect] = useConnectWallet()
+  const [ethersProvider, setProvider] = useState<ethers.providers.Web3Provider | null>()
+  const [account, setAccount] = useState<Account | null>(null)
+
+  useEffect(() => {
+    if (wallet?.provider) {
+      setAccount({
+        address: wallet.accounts[0].address,
+      })
+    }
+  }, [wallet])
+
+  useEffect(() => {
+    if (wallet?.provider) {
+      console.log("wallet", wallet)
+      setProvider(new ethers.providers.Web3Provider(wallet.provider, 'any'))
+    }
+  }, [connect, connecting, wallet])
+
+  const handleConnectClick = async () => {
+    try {
+      const walletStates = await connect();
+      console.log('Connected wallets:', walletStates);
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+    }
+  };
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: <FaTachometerAlt /> },
     { name: 'Transactions', path: '/transactions', icon: <FaExchangeAlt /> },
@@ -32,8 +67,11 @@ const Sidebar = () => {
         </ul>
       </div>
       <div className="p-4">
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-all duration-300">
-          Connect Wallet
+        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-all duration-300"
+        disabled={!!connecting || !!wallet?.provider}
+        onClick={handleConnectClick}
+        >
+          {account?.address ? "Connected" : "Connect Wallet"}
         </button>
       </div>
     </div>
