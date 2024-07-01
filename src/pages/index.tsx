@@ -47,7 +47,7 @@ const Home: NextPage = () => {
         requestCount={requestCount}
         isLoading={isLoading}
       />
-      <Notifications />
+      {/* <Notifications /> */}
     </DashboardLayout>
   );
 };

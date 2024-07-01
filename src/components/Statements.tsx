@@ -13,16 +13,6 @@ interface StatementsProps {
 const Statements: React.FC<StatementsProps> = ({ transactions, isLoading }) => {
     const [activeTab, setActiveTab] = useState('Income Statement');
 
-    //   const amount = formatUnits(
-    //     BigInt(request?.balance?.balance ?? 0),
-    //     getDecimals(request.currencyInfo.network!, request.currencyInfo.value) ?? 18
-    //   );
-    //   const expectedAmount = formatUnits(
-    //     BigInt(request?.expectedAmount),
-    //     getDecimals(request.currencyInfo.network!, request.currencyInfo.value) ?? 18
-    //   );
-
-    //   const totalIncome = transactions.reduce((acc, request) => acc + parseFloat(request.balance?.balance || '0'), 0);
     const totalIncome = transactions.reduce((acc, request) => {
         const balance = parseFloat(formatUnits(
             BigInt(request?.balance?.balance ?? 0),
