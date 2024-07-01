@@ -2,11 +2,11 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import DashboardLayout from '../components/DashboardLayout';
 import Overview from '../components/Overview';
-import Notifications from '../components/Notifications';
 import { useRequestNetwork } from '../hooks/useRequestNetwork';
 import { useEffect, useState } from 'react';
 import { formatUnits } from "viem";
 import { getDecimals } from '@/utils';
+import Reports from '@/components/Reports';
 
 const Home: NextPage = () => {
   const { fetchAllRequests, isLoading } = useRequestNetwork();
@@ -48,6 +48,8 @@ const Home: NextPage = () => {
         isLoading={isLoading}
       />
       {/* <Notifications /> */}
+      <Reports />
+
     </DashboardLayout>
   );
 };

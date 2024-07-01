@@ -83,7 +83,7 @@ const Reports = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-white mt-10 p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Reports and Analytics</h2>
       {isLoading ? (
         <p>Loading...</p>

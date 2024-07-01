@@ -45,9 +45,7 @@ const Sidebar = () => {
     { name: 'Transactions', path: '/transactions', icon: <FaExchangeAlt /> },
     { name: 'Invoices', path: '/invoices', icon: <FaFileInvoiceDollar /> },
     { name: 'Statements', path: '/statements', icon: <FaFileAlt /> },
-    { name: 'Reports', path: '/reports', icon: <FaChartBar /> },
     { name: 'Notifications', path: '/notifications', icon: <FaBell /> },
-    { name: 'Integration', path: '/integration', icon: <FaPlug /> },
   ];
 
   return (
@@ -72,7 +70,7 @@ const Sidebar = () => {
         disabled={!!connecting || !!wallet?.provider}
         onClick={handleConnectClick}
         >
-          {account?.address ? "Connected" : "Connect Wallet"}
+          {account?.address ? "Wallet Connected" : "Connect Wallet"}
         </button>
       </div>
     </div>
