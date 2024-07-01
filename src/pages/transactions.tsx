@@ -24,7 +24,7 @@ const Transactions: NextPage = () => {
     fetchData();
   }, [fetchAllRequests]);
 
-  const walletAddress = wallets?.accounts[0].address.toLowerCase();
+  const walletAddress = wallets?.accounts[0]?.address.toLowerCase();
 
   const allTransactions = transactions;
   const payRequests = transactions.filter((request) => request.payer?.value.toLowerCase() === walletAddress);
@@ -32,6 +32,11 @@ const Transactions: NextPage = () => {
 
   const filteredTransactions =
     activeTab === 'All' ? allTransactions : activeTab === 'Paid' ? payRequests : getPaidRequests;
+
+  const searchedTransactions = filteredTransactions.filter((transaction) =>
+    transaction.payee?.value.toLowerCase().includes(filter.toLowerCase()) ||
+    transaction.payer?.value.toLowerCase().includes(filter.toLowerCase())
+  );
 
   const handleRowClick = (transaction: IRequestDataWithEvents | undefined) => {
     console.log('Transaction clicked:', transaction);
@@ -55,9 +60,8 @@ const Transactions: NextPage = () => {
         />
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
         <TransactionList
-          transactions={filteredTransactions}
+          transactions={searchedTransactions}
           isLoading={isLoading}
-          filter={filter}
           handleRowClick={handleRowClick}
         />
       </div>

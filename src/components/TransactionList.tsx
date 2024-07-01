@@ -6,11 +6,11 @@ import { getDecimals } from '@/utils';
 interface TransactionListProps {
   transactions: IRequestDataWithEvents[];
   isLoading: boolean;
-  filter: string;
   handleRowClick: (transaction: IRequestDataWithEvents | undefined) => void;
 }
 
-const TransactionList: React.FC<TransactionListProps> = ({ transactions, isLoading, filter, handleRowClick }) => {
+const TransactionList: React.FC<TransactionListProps> = ({ transactions, isLoading, handleRowClick }) => {
+
   const getStatus = (state: string, expectedAmount: BigInt, balance: BigInt) => {
     if (balance >= expectedAmount) {
       return { status: 'Paid', icon: <span className="text-green-500">✔</span> };
@@ -29,11 +29,6 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, isLoadi
     }
   };
 
-  const filteredTransactions = transactions.filter((transaction) =>
-    transaction.payee?.value.toLowerCase().includes(filter.toLowerCase()) ||
-    transaction.payer?.value.toLowerCase().includes(filter.toLowerCase())
-  );
-
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Transactions</h2>
@@ -51,10 +46,10 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, isLoadi
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.map((transaction) => {
+            {transactions.map((transaction) => {
               const { status, icon } = getStatus(
                 transaction.state as string,
-                BigInt(transaction.expectedAmount as string),
+                BigInt(transaction.expectedAmount as string ?? '0'),
                 BigInt(transaction.balance?.balance ?? 0)
               );
               return (
@@ -62,10 +57,10 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, isLoadi
                   <td className="px-4 py-2 border">{transaction.payee?.value}</td>
                   <td className="px-4 py-2 border">{transaction.payer?.value}</td>
                   <td className="px-4 py-2 border">
-                    {formatUnits(
-                      BigInt(transaction.expectedAmount),
-                      getDecimals(transaction.currencyInfo.network, transaction.currencyInfo.value)
-                    )}
+                    {Number(formatUnits(
+                      BigInt(transaction?.expectedAmount),
+                      getDecimals(transaction.currencyInfo.network!, transaction.currencyInfo.value) ?? 18
+                    ))}
                   </td>
                   <td className="px-4 py-2 border flex items-center">
                     {icon}
