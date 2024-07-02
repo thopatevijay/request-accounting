@@ -43,7 +43,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: <FaTachometerAlt /> },
     { name: 'Transactions', path: '/transactions', icon: <FaExchangeAlt /> },
-    { name: 'Invoices', path: '/invoices', icon: <FaFileInvoiceDollar /> },
+    // { name: 'Invoices', path: '/invoices', icon: <FaFileInvoiceDollar /> }, not ready yet
     { name: 'Statements', path: '/statements', icon: <FaFileAlt /> },
     { name: 'Notifications', path: '/notifications', icon: <FaBell /> },
   ];

@@ -44,7 +44,7 @@ export function useRequestNetwork(): UseRequestNetworkResult {
             }
             const fetchedRequests = await requestClient.fromIdentity({
                 type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
-                value: "0x519145B771a6e450461af89980e5C17Ff6Fd8A92",
+                value: wallets.accounts[0].address,
             });
 
             const requestData = await Promise.all(
