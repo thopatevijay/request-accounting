@@ -5,8 +5,8 @@ interface TabsProps {
   setActiveTab: (tab: string) => void;
 }
 
-const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
-  const tabs = ['All', 'Paid', 'Get Paid'];
+const StatementsTabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
+  const tabs = ['Income Statement', 'Balance Sheet', 'Cash Flow Statement'];
 
   return (
     <div className="flex border-b mb-4">
@@ -25,4 +25,4 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
   );
 };
 
-export default Tabs;
+export default StatementsTabs;

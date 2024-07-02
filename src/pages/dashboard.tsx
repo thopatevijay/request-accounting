@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
-import Tabs from '../components/Tabs';
+import Tabs from '../components/Tabss';
 import Modal from '../components/Modal';
 import { Types } from '@requestnetwork/request-client.js';
 import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
