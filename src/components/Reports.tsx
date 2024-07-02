@@ -1,30 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useRequestNetwork } from '../hooks/useRequestNetwork';
-import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
 import { formatUnits } from 'viem';
 import { getDecimals } from '@/utils';
+import { useRequestContext } from '@/Providers/RequestProvider';
+import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
 
 Chart.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
 const Reports = () => {
-  const { fetchAllRequests, isLoading } = useRequestNetwork();
-  const [transactions, setTransactions] = useState<IRequestDataWithEvents[]>([]);
+  const { requests, isLoading } = useRequestContext();
   const [monthlyRevenue, setMonthlyRevenue] = useState<number[]>(new Array(12).fill(0));
   const [outstandingPayments, setOutstandingPayments] = useState<number[]>(new Array(12).fill(0));
 
   useEffect(() => {
-    const fetchData = async () => {
-      const requests = await fetchAllRequests();
-      if (requests) {
-        setTransactions(requests);
-        calculateReports(requests);
-      }
-    };
-
-    fetchData();
-  }, [fetchAllRequests]);
+    if (requests.length) {
+      calculateReports(requests);
+    }
+  }, [requests]);
 
   const calculateReports = (requests: IRequestDataWithEvents[]) => {
     const revenue = new Array(12).fill(0);

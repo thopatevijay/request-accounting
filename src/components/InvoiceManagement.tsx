@@ -1,23 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useRequestNetwork } from '../hooks/useRequestNetwork';
-import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
+import React, { useState } from 'react';
 import { formatUnits } from 'viem';
+import { useRequestContext } from '@/Providers/RequestProvider';
 
 const InvoiceManagement = () => {
-  const { fetchAllRequests, isLoading } = useRequestNetwork();
-  const [invoices, setInvoices] = useState<IRequestDataWithEvents[]>([]);
+  const { requests, isLoading } = useRequestContext();
   const [newInvoice, setNewInvoice] = useState({ payee: '', amount: '', description: '' });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const requests = await fetchAllRequests();
-      if (requests) {
-        setInvoices(requests);
-      }
-    };
-
-    fetchData();
-  }, [fetchAllRequests]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -83,7 +70,7 @@ const InvoiceManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {invoices.map((invoice) => (
+              {requests.map((invoice) => (
                 <tr key={invoice.requestId}>
                   <td className="px-4 py-2 border">{invoice.payee?.value}</td>
                   <td className="px-4 py-2 border">

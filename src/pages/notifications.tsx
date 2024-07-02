@@ -2,26 +2,19 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import DashboardLayout from '../components/DashboardLayout';
 import Notifications from '../components/Notifications';
-import { useRequestNetwork } from '../hooks/useRequestNetwork';
 import { useEffect, useState } from 'react';
 import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
 import { formatUnits } from 'viem';
 import { getDecimals } from '@/utils';
+import { useRequestContext } from '@/Providers/RequestProvider';
 
 const NotificationsPage: NextPage = () => {
-  const { fetchAllRequests, isLoading } = useRequestNetwork();
+  const { requests, isLoading } = useRequestContext();
   const [notifications, setNotifications] = useState<{ message: string; type: string }[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const requests = await fetchAllRequests();
-      if (requests) {
-        generateNotifications(requests);
-      }
-    };
-
-    fetchData();
-  }, [fetchAllRequests]);
+    generateNotifications(requests);
+  }, [requests]);
 
   const generateNotifications = (requests: IRequestDataWithEvents[]) => {
     const newNotifications: { message: string; type: string }[] = [];

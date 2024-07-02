@@ -3,32 +3,22 @@ import Head from 'next/head';
 import DashboardLayout from '../components/DashboardLayout';
 import TransactionList from '../components/TransactionList';
 import Tabs from '../components/Tabs';
-import { useRequestNetwork } from '../hooks/useRequestNetwork';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
+import { useRequestContext } from '@/Providers/RequestProvider';
+import { useRequestNetwork } from '@/hooks';
 
 const Transactions: NextPage = () => {
-  const { fetchAllRequests, isLoading, wallets } = useRequestNetwork();
-  const [transactions, setTransactions] = useState<IRequestDataWithEvents[]>([]);
+  const { requests, isLoading } = useRequestContext();
+  const { wallets } = useRequestNetwork();
   const [filter, setFilter] = useState('');
   const [activeTab, setActiveTab] = useState('All');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const requests = await fetchAllRequests();
-      if (requests) {
-        setTransactions(requests);
-      }
-    };
-
-    fetchData();
-  }, [fetchAllRequests]);
-
   const walletAddress = wallets?.accounts[0]?.address.toLowerCase();
 
-  const allTransactions = transactions;
-  const payRequests = transactions.filter((request) => request.payer?.value.toLowerCase() === walletAddress);
-  const getPaidRequests = transactions.filter((request) => request.payee?.value.toLowerCase() === walletAddress);
+  const allTransactions = requests;
+  const payRequests = requests.filter((request) => request.payer?.value.toLowerCase() === walletAddress);
+  const getPaidRequests = requests.filter((request) => request.payee?.value.toLowerCase() === walletAddress);
 
   const filteredTransactions =
     activeTab === 'All' ? allTransactions : activeTab === 'Paid' ? payRequests : getPaidRequests;
