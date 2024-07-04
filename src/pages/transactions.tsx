@@ -3,16 +3,20 @@ import Head from 'next/head';
 import DashboardLayout from '../components/DashboardLayout';
 import TransactionList from '../components/TransactionList';
 import Tabs from '../components/Tabs';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
 import { useRequestContext } from '@/Providers/RequestProvider';
 import { useRequestNetwork } from '@/hooks';
+import { FaDownload } from 'react-icons/fa';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 const Transactions: NextPage = () => {
   const { requests, isLoading } = useRequestContext();
   const { wallets } = useRequestNetwork();
   const [filter, setFilter] = useState('');
   const [activeTab, setActiveTab] = useState('All');
+  const transactionListRef = useRef<HTMLDivElement>(null);
 
   const walletAddress = wallets?.accounts[0]?.address.toLowerCase();
 
@@ -32,6 +36,21 @@ const Transactions: NextPage = () => {
     console.log('Transaction clicked:', transaction);
   };
 
+  const downloadPDF = () => {
+    const input = transactionListRef.current;
+    if (input) {
+      html2canvas(input).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF();
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Transactions-${activeTab}.pdf`);
+      });
+    }
+  };
+
   return (
     <DashboardLayout>
       <Head>
@@ -48,12 +67,17 @@ const Transactions: NextPage = () => {
           onChange={(e) => setFilter(e.target.value)}
           className="p-2 border rounded mb-4 w-full"
         />
-        <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-        <TransactionList
-          transactions={searchedTransactions}
-          isLoading={isLoading}
-          handleRowClick={handleRowClick}
-        />
+        <div className="flex justify-between items-center mb-4">
+          <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <FaDownload className="cursor-pointer text-blue-500" onClick={downloadPDF} />
+        </div>
+        <div ref={transactionListRef}>
+          <TransactionList
+            transactions={searchedTransactions}
+            isLoading={isLoading}
+            handleRowClick={handleRowClick}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );
