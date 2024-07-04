@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
 import { formatUnits } from 'viem';
 import { getDecimals } from '@/utils';
 import { useRequestContext } from '@/Providers/RequestProvider';
 import { IRequestDataWithEvents } from '@requestnetwork/request-client.js/dist/types';
+import { FaDownload } from 'react-icons/fa';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 Chart.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
@@ -12,6 +15,9 @@ const Reports = () => {
   const { requests, isLoading } = useRequestContext();
   const [monthlyRevenue, setMonthlyRevenue] = useState<number[]>(new Array(12).fill(0));
   const [outstandingPayments, setOutstandingPayments] = useState<number[]>(new Array(12).fill(0));
+
+  const monthlyRevenueRef = useRef<HTMLDivElement>(null);
+  const outstandingPaymentsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (requests.length) {
@@ -41,6 +47,21 @@ const Reports = () => {
 
     setMonthlyRevenue(revenue);
     setOutstandingPayments(outstanding);
+  };
+
+  const downloadPDF = (chartRef: React.RefObject<HTMLDivElement>, title: string) => {
+    const input = chartRef.current;
+    if (input) {
+      html2canvas(input).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF();
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`${title}.pdf`);
+      });
+    }
   };
 
   const monthlyRevenueData = {
@@ -82,13 +103,21 @@ const Reports = () => {
         <p>Loading...</p>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div>
+          <div ref={monthlyRevenueRef} className="relative">
             <h3 className="text-lg font-semibold mb-2">Monthly Revenue</h3>
             <Line data={monthlyRevenueData} />
+            <FaDownload
+              className="absolute top-0 right-0 mt-2 mr-2 cursor-pointer text-blue-500"
+              onClick={() => downloadPDF(monthlyRevenueRef, 'Monthly Revenue')}
+            />
           </div>
-          <div>
+          <div ref={outstandingPaymentsRef} className="relative">
             <h3 className="text-lg font-semibold mb-2">Outstanding Payments</h3>
             <Line data={outstandingPaymentsData} />
+            <FaDownload
+              className="absolute top-0 right-0 mt-2 mr-2 cursor-pointer text-blue-500"
+              onClick={() => downloadPDF(outstandingPaymentsRef, 'Outstanding Payments')}
+            />
           </div>
         </div>
       )}
