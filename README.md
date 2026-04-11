@@ -44,6 +44,10 @@ The Decentralized Accounting and Financial Management App is a robust, blockchai
 4. **Statements**
 5. **Notifications and Alerts**
 
+## Documentation
+
+- [System Design](./SYSTEM-DESIGN.md) — Architecture diagrams, data flow, financial calculations, design decisions
+
 ## Links
 
 - **Live Project**: [Live Project Link](https://request-accounting.vercel.app/)
